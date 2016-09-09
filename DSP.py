@@ -21,5 +21,5 @@ def butter_bandpass_filter(data, band_range, fs=44100, order=2):
 
 
 
-def getAudioBand(audio,range):
-    return butter_bandpass_filter(audio,range)
+def getAudioBand(audio,band_range):
+    return butter_bandpass_filter(audio,band_range)

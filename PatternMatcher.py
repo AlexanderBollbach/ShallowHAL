@@ -1,4 +1,4 @@
-from AudioToSeqCode import getSeqCodeFromBand
+from AudioToSeqCode import seq_from_band
 from Track import *
 
 import math
@@ -16,68 +16,84 @@ class PatternMatcher(object):
 
 
 
-    def match16(self, seqCodeSlice):
+
+    def score_for_starting_idx(self, seq, idx):
 
         score = 0
-        for i in range(0,16):
-            if seqCodeSlice[i] == self.pattern[i]:
+
+        pattern_idx = 0
+        for i in range(idx, len(seq)):
+
+            if seq[i] == self.pattern[pattern_idx % 16]:
                 score += 1
+
+            pattern_idx += 1
+
         return score
+
+
+
+
+
+
+
+    def score_from_band(self, band_range):
+
+        seq = seq_from_band(self.track.audio, band_range)
+
+
+        max_score = 0
+        best_idx = 0
+
+        for i in range(len(seq)):
+
+            score_for_idx = self.score_for_starting_idx(seq, i)
+
+            if score_for_idx > max_score:
+                max_score = score_for_idx
+                best_idx = i
+
+
+        return max_score, best_idx
+
+
+
+
 
 
 
 
     def findPattern(self):
 
-
-
-        cutoff = 0
         scoreForBands = {}
 
-        while cutoff < 5000:
-
-            seqCode = getSeqCodeFromBand(self.track.audio, [cutoff, cutoff + 50])
-
-            scoreForBands[cutoff] = 0
-
-            numBars = int(math.floor(len(seqCode) / 16))
-
-            curScore = 0
-
-            for i in range(numBars):
-                pointInArray = i * 16
-                seqCodeSlice = seqCode[pointInArray:pointInArray+16]
-                curScore += self.match16(seqCodeSlice)
-
-
-            scoreForBands[cutoff] = curScore
-
-
-            print "band: " + str(cutoff) + "score: " + str(curScore)
-
+        cutoff = 0
+        while cutoff < 2000:
+            scoreForBands[cutoff] = self.score_from_band([cutoff, cutoff + 50])
             cutoff += 50
 
 
+        # normalize and return max
         minVal = 1000000
         maxVal = 0
         for band, score in scoreForBands.iteritems():
-            if score > maxVal:
-                maxVal = score
+            if score[0] > maxVal:
+                maxVal = score[0]
             if score < minVal:
-                minVal = score
+                minVal = score[0]
 
         for band, score in scoreForBands.iteritems():
-            normalized = float(score - minVal) / (maxVal - minVal)
+            normalized = float(score[0] - minVal) / (maxVal - minVal)
             scoreForBands[band] = normalized
 
         for band, score in sorted(scoreForBands.iteritems()):
-            print "band: " + str(band) + "score: " + str(score)
+            print "band: " + str(band) + "score: " + str(score[0])
 
         maxScore = 0
         maxBand = 0
         for band, score in scoreForBands.iteritems():
-            if score > maxScore:
-                maxScore = score
+            if score[0] > maxScore:
+                maxScore = score[0]
                 maxBand = band
 
         return maxBand

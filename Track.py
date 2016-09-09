@@ -14,6 +14,9 @@ class Track(object):
 
         self.get_audio()
 
+        self.onsets = onsets_from_audio(self.audio)
+
+
 
 
 
@@ -41,7 +44,7 @@ class Track(object):
 
     def get_banded_seq_code(self, range):
         banded_audio = getAudioBand(self.audio, range)
-        code = seqCodeFromAudio(self.audio)
+        code = seq_from_audio(banded_audio)
         return code
 
 
