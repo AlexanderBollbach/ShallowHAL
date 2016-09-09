@@ -1,0 +1,17 @@
+--- Ideas ---
+
+- function to "scan" bandwidths of section of file for 'snare-like' patterns.   a basic 2-4 (or over time, roughly)
+from which we can infer bar/measure barriers.  taking a statistical approach is good here, i can first look for
+statistically high chance for snare, then scan kick drum bandwidth and look for statistically high chance for that to
+increase the probability of correctness.
+
+
+
+
+
+
+
+--- persistence datastructure for accumulating statistical musical features ---
+
+- 16-length seqCodes each w/ number of times found
+(how to avoid the problem of shifted occurrences of these seqCodes occurring equal times as the non-shifted ones?)
